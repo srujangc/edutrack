@@ -1,0 +1,27 @@
+{
+  "name": "edutrack-app",
+  "version": "1.0.0",
+  "description": "EduTrack - Student Academic Management Platform",
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,magenta\" \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "start": "node backend/server.js",
+    "server": "npm --prefix backend run dev",
+    "client": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "test": "node backend/test-api.js"
+  },
+  "keywords": [
+    "edutrack",
+    "student-academic-platform",
+    "react",
+    "vite",
+    "express",
+    "mongodb"
+  ],
+  "author": "EduTrack Team",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "type": "module"
+}
