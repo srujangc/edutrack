@@ -8,6 +8,7 @@ import User from '../models/User.js';
 
 // Reusable function to populate sample academic data for any student
 export const populateStudentData = async (userId) => {
+  try {
   // Remove existing data for this user to avoid conflicts or duplicates
   await Promise.all([
     Subject.deleteMany({ userId }),
