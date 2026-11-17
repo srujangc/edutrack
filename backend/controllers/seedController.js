@@ -4,23 +4,19 @@ import Attendance from '../models/Attendance.js';
 import Timetable from '../models/Timetable.js';
 import Exam from '../models/Exam.js';
 import Note from '../models/Note.js';
+import User from '../models/User.js';
 
-// @desc    Populate sample academic data for the logged-in student
-// @route   POST /api/seed
-// @access  Private
-export const seedSampleData = async (req, res) => {
-  try {
-    const userId = req.user._id;
-
-    // Remove existing data for this user to avoid conflicts or duplicates
-    await Promise.all([
-      Subject.deleteMany({ userId }),
-      Assignment.deleteMany({ userId }),
-      Attendance.deleteMany({ userId }),
-      Timetable.deleteMany({ userId }),
-      Exam.deleteMany({ userId }),
-      Note.deleteMany({ userId })
-    ]);
+// Reusable function to populate sample academic data for any student
+export const populateStudentData = async (userId) => {
+  // Remove existing data for this user to avoid conflicts or duplicates
+  await Promise.all([
+    Subject.deleteMany({ userId }),
+    Assignment.deleteMany({ userId }),
+    Attendance.deleteMany({ userId }),
+    Timetable.deleteMany({ userId }),
+    Exam.deleteMany({ userId }),
+    Note.deleteMany({ userId })
+  ]);
 
     // 1. Create 5 Realistic Core Subjects
     const sampleSubjects = [
@@ -354,6 +350,20 @@ export const seedSampleData = async (req, res) => {
     ];
 
     await Note.insertMany(sampleNotes);
+    return true;
+  } catch (error) {
+    console.error('[Populate Error]:', error);
+    throw error;
+  }
+};
+
+// @desc    Populate sample academic data for the logged-in student
+// @route   POST /api/seed
+// @access  Private
+export const seedSampleData = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    await populateStudentData(userId);
 
     return res.status(200).json({
       success: true,
@@ -365,6 +375,32 @@ export const seedSampleData = async (req, res) => {
       success: false,
       message: error.message || 'Error generating sample data'
     });
+  }
+};
+
+// Auto-seed demo student account if not present on server start
+export const ensureDemoStudentExists = async () => {
+  try {
+    const demoEmail = 'alex.rivera@college.edu';
+    const user = await User.findOne({ email: demoEmail });
+    if (!user) {
+      console.log('[Auto-Seed] Initializing demo student (Alex Rivera)...');
+      const newUser = await User.create({
+        name: 'Alex Rivera',
+        email: demoEmail,
+        password: 'Password123!',
+        college: 'Stanford University',
+        semester: 'Semester 5',
+        department: 'Computer Science & Engineering',
+        targetAttendance: 75
+      });
+      await populateStudentData(newUser._id);
+      console.log('[Auto-Seed] Demo student and academic data created successfully!');
+    } else {
+      console.log('[Auto-Seed] Demo student verified in database.');
+    }
+  } catch (err) {
+    console.error('[Auto-Seed Error]:', err.message);
   }
 };
 

@@ -13,14 +13,17 @@ import examRoutes from './routes/examRoutes.js';
 import noteRoutes from './routes/noteRoutes.js';
 import progressRoutes from './routes/progressRoutes.js';
 import seedRoutes from './routes/seedRoutes.js';
+import { ensureDemoStudentExists } from './controllers/seedController.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to Database
-connectDB();
+// Connect to Database & guarantee demo account is always available
+connectDB().then(() => {
+  ensureDemoStudentExists();
+});
 
 // Middleware
 // CORS — allow localhost in dev, Firebase Hosting URLs in production
